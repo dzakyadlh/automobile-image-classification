@@ -4,6 +4,7 @@ import tensorflow_datasets as tfds
 import numpy as np
 import cv2
 import os
+import pandas as pd
 
 from tensorflow.keras.datasets import cifar10
 from tensorflow.keras.models import Sequential
@@ -75,7 +76,7 @@ model = Sequential([
 model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
 
 # Train the model
-model.fit(x_train, y_train, epochs=10, batch_size=32, validation_data=(x_test, y_test))
+history = model.fit(x_train, y_train, epochs=10, batch_size=32, validation_data=(x_test, y_test))
 
 # Save the trained model
 model.save('trained_model.h5')
@@ -111,14 +112,25 @@ for i, image in enumerate(images):
 plt.tight_layout()
 plt.show()
 
-# Calculate the accuracy based on the predicted labels
-accuracy = predicted_labels.count('Automobile') / len(predicted_labels)
-print("Accuracy:", accuracy)
-# # Perform classification on the images
-# class_labels = {0: 'Automobile', 1: 'Cat', 2: 'Dog'}
-# for i, image in enumerate(images):
-#     image = np.expand_dims(image, axis=0)
-#     prediction = model.predict(image)
-#     class_index = np.argmax(prediction)
-#     predicted_label = class_labels[class_index]
-#     print(f"Image {i+1}: {predicted_label}")
+# Create a DataFrame from the history
+history_frame = pd.DataFrame(history.history)
+
+# Plot the loss
+plt.figure(figsize=(12, 4))
+plt.subplot(1, 2, 1)
+plt.plot(history.history['loss'], label='Training Loss')
+plt.plot(history.history['val_loss'], label='Validation Loss')
+plt.title('Training and Validation Loss')
+plt.xlabel('Epoch')
+plt.ylabel('Loss')
+
+# Plot the accuracy
+plt.subplot(1, 2, 2)
+plt.plot(history.history['accuracy'], label='Training Accuracy')
+plt.plot(history.history['val_accuracy'], label='Validation Accuracy')
+plt.title('Training and Validation Accuracy')
+plt.xlabel('Epoch')
+plt.ylabel('Accuracy')
+
+plt.tight_layout()
+plt.show()
